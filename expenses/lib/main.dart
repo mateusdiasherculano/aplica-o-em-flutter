@@ -1,8 +1,6 @@
 import 'dart:math';
-
 import 'package:expenses/components/transaction_form.dart';
 import 'package:flutter/material.dart';
-
 import 'components/transaction_list.dart';
 import 'models/transaction.dart';
 
@@ -31,12 +29,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [];
 
-  _addTransaction(String name, String birthDate) {
+  _addTransaction(String name, DateTime birthDate) {
     final newTransaction = Transaction(
       id: Random().nextDouble().toString(),
       name: name,
       birthDate: birthDate,
-      date: DateTime.now(),
     );
 
     setState(() {
@@ -44,6 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     Navigator.of(context).pop();
+  }
+
+  _deleteTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((tr) {
+        return tr.id == id;
+      });
+    });
   }
 
   _openTransactionFormModal(BuildContext context) {
@@ -69,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView(
         children: [
           Column(children: [
-            TransactionList(_transactions),
+            TransactionList(_transactions, _deleteTransaction),
           ]),
         ],
       ),

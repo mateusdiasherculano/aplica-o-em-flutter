@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Transactionform extends StatefulWidget {
-  final void Function(String, String) onSubmit;
+  final void Function(String, DateTime) onSubmit;
 
   Transactionform(this.onSubmit);
 
@@ -10,18 +11,34 @@ class Transactionform extends StatefulWidget {
 }
 
 class _TransactionformState extends State<Transactionform> {
-  final nameController = TextEditingController();
-  final birthDateController = TextEditingController();
+  final _nameController = TextEditingController();
+  DateTime? _selecteDate;
 
   _submitForm() {
-    final name = nameController.text;
-    final birthDate = birthDateController.text;
+    final name = _nameController.text;
 
-    if (name.isEmpty || birthDate.isEmpty) {
+    if (name.isEmpty || _selecteDate == null) {
       return;
     }
 
-    widget.onSubmit(name, birthDate);
+    widget.onSubmit(name, _selecteDate!);
+  }
+
+  _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+
+      setState(() {
+        _selecteDate = pickedDate;
+      });
+    });
   }
 
   @override
@@ -33,24 +50,36 @@ class _TransactionformState extends State<Transactionform> {
         child: Column(
           children: [
             TextField(
-              controller: nameController,
-              onSubmitted: (_) => _submitForm(),
+              controller: _nameController,
               decoration: const InputDecoration(
-                labelText: 'Nome:',
+                labelText: 'Nome completo:',
               ),
             ),
-            TextField(
-              controller: birthDateController,
-              onSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: 'data de nascimento:',
+            SizedBox(
+              height: 70,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    _selecteDate == null
+                        ? 'informe a data do seu nascimento:'
+                        : DateFormat('d/MMM/y').format(_selecteDate!),
+                  ),
+                  FloatingActionButton(
+                    onPressed: _showDatePicker,
+                    child: const Icon(Icons.calendar_month),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(
+              height: 20,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: _submitForm,
+                  onPressed: () => _submitForm(),
                   child: const Text('Novo cadastro'),
                 ),
               ],
